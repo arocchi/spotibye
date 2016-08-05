@@ -44,6 +44,8 @@ class CachedRequest(object):
     def get_playlists(self, exclude = None, username = None):
         if os.path.isfile('./playlists.cache'):
             items = pickle.load(open('playlists.cache', 'r'))
+            items = [playlist for playlist in items if
+                     playlist['name'] not in exclude and (username is None or playlist['owner']['id'] == username)]
             return items
 
         n_total = None
@@ -58,8 +60,8 @@ class CachedRequest(object):
         if len(items) != n_total:
             raise Exception('Read the wrong number of playlists')
 
-        items = [playlist for playlist in items if playlist['name'] not in exclude and ( username is None or playlist['owner']['id'] == username ) ]
         pickle.dump(items, open('playlists.cache', 'wb'))
+        items = [playlist for playlist in items if playlist['name'] not in exclude and ( username is None or playlist['owner']['id'] == username ) ]
         return items
 
 if __name__ == '__main__':
