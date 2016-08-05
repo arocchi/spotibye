@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     if token:
         sp = spotipy.Spotify(auth=token)
-        for playlist in r.get_playlists(exclude, username):
+        for playlist in r.get_playlists([], username):
             if playlist['tracks']['total'] == 0:
                 print "###############"
                 print "Warning:", playlist['name'], "is empty"
