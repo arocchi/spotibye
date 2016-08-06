@@ -153,7 +153,7 @@ class CachedRequest(object):
                 req.append({'i':i, 'id':id})
 
                 if len(req) == 20 or i == len(albums)-1:
-                    res = sp.albums([r['id'] for r in req])
+                    res = self.sp.albums([r['id'] for r in req])
                     for j, album in enumerate(res['albums']):
                         self.albums_dict[req[j]['id']] = album
                         albums[req[j]['i']] = album
