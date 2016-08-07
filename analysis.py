@@ -26,13 +26,20 @@ def print_playlists_warnings(r, playlists):
                     continue
                 else:
                     if playlist_album['name'] != playlist['name'].split(separator, 1)[1]:
-                        print "###############"
                         print "Warning: playlist named", playlist['name'], "comes from album", playlist_album['name']
-                        print "###############"
                     break
         else:
             print "###############"
-            print "Warning:", playlist['name'], "contains tracks from multiple albums, will not be considered as album"
+            print "Warning:", playlist['name'], "with id", playlist['id'], "contains tracks from multiple albums, will not be considered as album"
+            playlist_albums = dict()
+            for track in tracks:
+                if playlist_albums.has_key(track['album']['id']):
+                    playlist_albums[track['album']['id']] += [track]
+                else:
+                    playlist_albums[track['album']['id']] = [track]
+            for album_id, a_tracks in playlist_albums.items():
+                for a_track in a_tracks:
+                    print "Track", a_track['name'], "from album", a_track['album']['name']
             print "###############"
 
 def print_albums_warnings(r, albums):
