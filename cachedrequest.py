@@ -20,7 +20,7 @@ class CachedRequest(object):
             self.albums_dict = dict()
 
     def get_playlist_tracks(self, playlist):
-        if self.playlists_tracks_dict.has_key(playlist['id']):
+        if playlist['id'] in self.playlists_tracks_dict:
             return self.playlists_tracks_dict[playlist['id']]
 
         tracks = []
@@ -45,7 +45,7 @@ class CachedRequest(object):
         return tracks
 
     def get_album_tracks(self, album):
-        if self.tracks_dict.has_key(album['id']):
+        if album['id'] in self.tracks_dict:
             return self.tracks_dict[album['id']]
 
         tracks = []
@@ -92,7 +92,7 @@ class CachedRequest(object):
             playlists = pickle.load(open('playlists.cache', 'r'))
             if playlist_id in [playlist['id'] for playlist in playlists]:
                 os.path.os.remove('playlists.cache')
-        if self.playlists_tracks_dict.has_key(playlist_id):
+        if playlist_id in self.playlists_tracks_dict:
             del self.playlists_tracks_dict[playlist_id]
             pickle.dump(self.playlists_tracks_dict, open('playlists_tracks.cache', 'wb'))
 
@@ -101,15 +101,15 @@ class CachedRequest(object):
             albums = pickle.load(open('yourmusic.cache', 'r'))
             if album_id in [album['id'] for album in albums]:
                 os.path.os.remove('yourmusic.cache')
-        if self.albums_dict.has_key(album_id):
+        if album_id in self.albums_dict:
             del self.albums_dict[album_id]
             pickle.dump(self.albums_dict, open('albums.cache','wb'))
-        if self.tracks_dict.has_key(album_id):
+        if album_id in self.tracks_dict:
             del self.tracks_dict[album_id]
             pickle.dump(self.tracks_dict, open('tracks.cache','wb'))
 
     def get_album(self, album_id):
-        if self.albums_dict.has_key(album_id):
+        if album_id in self.albums_dict:
             return self.albums_dict['album_id']
 
         res = self.sp.albums(album_id)
@@ -124,7 +124,7 @@ class CachedRequest(object):
         if os.path.isfile('./yourmusic.cache'):
             items = pickle.load(open('yourmusic.cache', 'r'))
             for item in items:
-                if not self.albums_dict.has_key(item['id']):
+                if not item['id'] in self.albums_dict:
                     dump_pickle = True
                     self.albums_dict[item['id']] = item
             if dump_pickle:
@@ -152,7 +152,7 @@ class CachedRequest(object):
         pickle.dump(items, open('yourmusic.cache', 'wb'))
         for item in items:
             print item
-            if not self.albums_dict.has_key(item['id']):
+            if not item['id'] in self.albums_dict:
                 dump_pickle = True
                 self.albums_dict[item['id']] = item
         if dump_pickle:
@@ -171,7 +171,7 @@ class CachedRequest(object):
                 #raise Exception('Error: %s containts tracks from multiple albums'%playlist['name'])
             albums_id[i] = playlist_album['id']
 
-            if self.albums_dict.has_key(playlist_album['id']):
+            if playlist_album['id'] in self.albums_dict:
                 albums[i] = self.albums_dict[playlist_album['id']]
 
         dump_pickle = False
