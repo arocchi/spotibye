@@ -47,6 +47,11 @@ def print_albums_warnings(r, albums):
             print album['external_urls']['spotify']
             print "************"
 
+        if len(album['external_ids'].items()) == 0:
+            print "************"
+            print "Warning: album", album['name'] ,"with id", album['id'], "has no external ids"
+            print "************"
+
         if album['tracks']['total'] == 0:
             print "************"
             print "Warning: album with id", album['id'], ",", album['name'], "has zero tracks"
