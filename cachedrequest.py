@@ -87,6 +87,38 @@ class CachedRequest(object):
         items = [playlist for playlist in items if playlist['name'] not in exclude and ( username is None or playlist['owner']['id'] == username ) ]
         return items
 
+    def invalidate_playlist_cache(self, playlist_id):
+        if os.path.isfile('./playlists.cache'):
+            playlists = pickle.load(open('playlists.cache', 'r'))
+            if playlist_id in [playlist['id'] for playlist in playlists]:
+                os.path.os.remove('playlists.cache')
+        if self.playlists_tracks_dict.has_key(playlist_id):
+            del self.playlists_tracks_dict[playlist_id]
+            pickle.dump(self.playlists_tracks_dict, open('playlists_tracks.cache', 'wb'))
+
+    def invalidate_album_cache(self, album_id):
+        if os.path.isfile('./yourmusic.cache'):
+            albums = pickle.load(open('yourmusic.cache', 'r'))
+            if album_id in [album['id'] for album in albums]:
+                os.path.os.remove('yourmusic.cache')
+        if self.albums_dict.has_key(album_id):
+            del self.albums_dict[album_id]
+            pickle.dump(self.albums_dict, open('albums.cache','wb'))
+        if self.tracks_dict.has_key(album_id):
+            del self.tracks_dict[album_id]
+            pickle.dump(self.tracks_dict, open('tracks.cache','wb'))
+
+    def get_album(self, album_id):
+        if self.albums_dict.has_key(album_id):
+            return self.albums_dict['album_id']
+
+        res = self.sp.albums(album_id)
+        if len(res['albums'] == 1):
+            album = res['albums'][0]
+            self.albums_dict[album_id] = album
+            pickle.dump(self.albums_dict, open('albums.cache','wb'))
+            self.get_album_tracks(item['album'])
+
     def get_your_music_albums(self):
         dump_pickle = False
         if os.path.isfile('./yourmusic.cache'):
