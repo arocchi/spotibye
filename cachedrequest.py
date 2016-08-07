@@ -158,7 +158,7 @@ class CachedRequest(object):
                         self.albums_dict[req[j]['id']] = album
                         albums[req[j]['i']] = album
                         playlist = playlists[req[j]['i']]
-                        self.tracks_dict[album['id']] = self.playlists_tracks_dict[playlist['id']]
+                        self.tracks_dict[album['id']] = self.get_album_tracks(album)
                     req = []
 
 
