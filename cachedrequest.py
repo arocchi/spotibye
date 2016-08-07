@@ -88,9 +88,9 @@ class CachedRequest(object):
         return items
 
     def get_your_music_albums(self):
+        dump_pickle = False
         if os.path.isfile('./yourmusic.cache'):
             items = pickle.load(open('yourmusic.cache', 'r'))
-            dump_pickle = False
             for item in items:
                 if not self.albums_dict.has_key(item['id']):
                     dump_pickle = True
