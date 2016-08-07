@@ -6,14 +6,59 @@ import sys
 import spotipy
 import spotipy.util as util
 from cachedrequest import CachedRequest
-from pprint import pprint
 
 
+def print_playlists_warnings(r, playlists):
+    for playlist in playlists:
+        if playlist['tracks']['total'] == 0:
+            print "###############"
+            print "Warning:", playlist['name'], "is empty"
+            print "###############"
 
-def show_tracks(tracks):
+        tracks = r.get_playlist_tracks(playlist)
+
+        playlist_album = tracks[0]['album']
+        if all(track['album']['id'] == playlist_album['id'] for track in tracks):
+            for separator in [u' \u2014 ', u' \u2013 ', " - ", None]:
+                if separator is None:
+                    raise Exception('Error: no separator worked for %s', playlist['name'].split(u' \u2014 '))
+                if len(playlist['name'].split(separator, 1)) != 2:
+                    continue
+                else:
+                    if playlist_album['name'] != playlist['name'].split(separator, 1)[1]:
+                        print "###############"
+                        print "Warning: playlist named", playlist['name'], "comes from album", playlist_album['name']
+                        print "###############"
+                    break
+        else:
+            print "###############"
+            print "Warning:", playlist['name'], "contains tracks from multiple albums, will not be considered as album"
+            print "###############"
+
+def print_albums_warnings(r, albums):
+    for album in albums:
+        if len(album['name']) == 0:
+            print "************"
+            print "Warning: album with id", album['id'], "has no name,", album['tracks']['total'], "tracks"
+            print "Track Listing:"
+            tracks = r.get_album_tracks(album)
+            print_tracks(tracks)
+            print "External urls:"
+            print album['external_urls']['spotify']
+            print "************"
+
+        if album['tracks']['total'] == 0:
+            print "************"
+            print "Warning: album with id", album['id'], ",", album['name'], "has zero tracks"
+            print "************"
+
+def print_tracks(tracks):
     for i, track in enumerate(tracks):
         print "   %d %32.32s %s" % (i, track['artists'][0]['name'],
             track['name'])
+
+def count_tracks(albums):
+    return sum([album['tracks']['total'] for album in albums])
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -30,50 +75,35 @@ if __name__ == '__main__':
         r = CachedRequest(sp)
 
         playlists = r.get_playlists([], username)
-        for playlist in playlists:
-            if playlist['tracks']['total'] == 0:
-                print "###############"
-                print "Warning:", playlist['name'], "is empty"
-                print "###############"
-
-            tracks = r.get_playlist_tracks(playlist)
-
-            playlist_album = tracks[0]['album']
-            if all(track['album']['id'] == playlist_album['id'] for track in tracks):
-                for separator in [u' \u2014 ', u' \u2013 ', " - ", None]:
-                    if separator is None:
-                        raise Exception('Error: no separator worked for %s', playlist['name'].split(u' \u2014 '))
-                    if len(playlist['name'].split(separator,1)) != 2:
-                        continue
-                    else:
-                        if playlist_album['name'] != playlist['name'].split(separator, 1)[1]:
-                            print "###############"
-                            print "Warning: playlist named", playlist['name'], "comes from album", playlist_album['name']
-                            print "###############"
-                        break
-            else:
-                print "###############"
-                print "Warning:", playlist['name'], "contains tracks from multiple albums"
-                print "###############"
+        print_playlists_warnings(r, playlists)
 
             # print playlist['name']
             # print '  total tracks', playlist['tracks']['total']
 
 
         your_music = r.get_your_music_albums()
+        """
         print "++++++Your Music Albums"
         for album in your_music:
             print "Album", album['name'], "id:", album['id'], "external_ids:", album['external_ids']
+        """
+        print count_tracks(your_music), "tracks in", len(your_music), "albums"
 
-        playlist_albums = r.get_playlists_albums(playlists)
+        playlist_2_albums = r.get_playlists_albums(playlists)
+        playlist_albums = [album for album in playlist_2_albums if album is not None]
+        """
         print "++++++Playlist Albums"
-        for album in [album for album in playlist_albums if album is not None]:
+        for album in playlist_albums:
             print "Album", album['name'], "id:", album['id'], "external_ids:", album['external_ids']
+        """
+        print count_tracks(playlist_albums), "tracks in", len(playlist_albums), "playlist albums"
 
+        """
         for key, album in r.albums_dict.items():
             print "Album id:", key, "Name:", album['name']
+        """
 
-
+        print_albums_warnings(r, r.albums_dict.values())
 
     else:
         print "Can't get token for", username
