@@ -76,7 +76,7 @@ if __name__ == '__main__':
         username = sys.argv[1]
     else:
         print "Whoops, need your username!"
-        print "usage: python user_playlists.py [username]"
+        print "usage: python analysis.py [username]"
         sys.exit()
 
     token = util.prompt_for_user_token(username, scope='user-library-read playlist-read-private')
