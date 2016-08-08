@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
-# shows a user's playlists (need to be authenticated via oauth)
+# Perform ana analysis of Spotify library (need to be authenticated via oauth)
 
 import sys
 import spotipy
 import spotipy.util as util
 from cachedrequest import CachedRequest
-
 
 def print_playlists_warnings(r, playlists):
     for playlist in playlists:
